@@ -96,6 +96,7 @@ public class ExecutorDelivery implements ResponseDelivery {
 
             // Deliver a normal response or error, depending.
             if (mResponse.isSuccess()) {
+                //哈哈，是我们自定义 request 另一个需要重写的方法，每一条网络请求都回调这个方法
                 mRequest.deliverResponse(mResponse.result);
             } else {
                 mRequest.deliverError(mResponse.error);

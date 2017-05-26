@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2013 The Android Open Source Project
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -118,6 +118,8 @@ public class NetworkImageView extends ImageView {
             return;
         }
 
+        //如果 URL 为空，取消所有的 request，并设置为默认图或 null
+
         // if the URL to be loaded in this view is empty, cancel any old requests and clear the
         // currently loaded image.
         if (TextUtils.isEmpty(mUrl)) {
@@ -145,6 +147,8 @@ public class NetworkImageView extends ImageView {
         int maxWidth = wrapWidth ? 0 : width;
         int maxHeight = wrapHeight ? 0 : height;
 
+
+        //去真正请求网络
         // The pre-existing content of this view didn't match the current URL. Load the new image
         // from the network.
         ImageContainer newContainer = mImageLoader.get(mUrl,

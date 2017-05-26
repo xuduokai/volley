@@ -94,6 +94,7 @@ public class BasicNetwork implements Network {
                 // Gather headers.
                 Map<String, String> headers = new HashMap<String, String>();
                 addCacheHeaders(headers, request.getCacheEntry());
+                //这里真正调用 HttpConnection
                 httpResponse = mHttpStack.performRequest(request, headers);
                 StatusLine statusLine = httpResponse.getStatusLine();
                 int statusCode = statusLine.getStatusCode();
@@ -137,45 +138,8 @@ public class BasicNetwork implements Network {
                 }
                 return new NetworkResponse(statusCode, responseContents, responseHeaders, false,
                         SystemClock.elapsedRealtime() - requestStart);
-            } catch (SocketTimeoutException e) {
-                attemptRetryOnException("socket", request, new TimeoutError());
-            } catch (ConnectTimeoutException e) {
-                attemptRetryOnException("connection", request, new TimeoutError());
-            } catch (MalformedURLException e) {
-                throw new RuntimeException("Bad URL " + request.getUrl(), e);
-            } catch (IOException e) {
-                int statusCode;
-                if (httpResponse != null) {
-                    statusCode = httpResponse.getStatusLine().getStatusCode();
-                } else {
-                    throw new NoConnectionError(e);
-                }
-                VolleyLog.e("Unexpected response code %d for %s", statusCode, request.getUrl());
-                NetworkResponse networkResponse;
-                if (responseContents != null) {
-                    networkResponse = new NetworkResponse(statusCode, responseContents,
-                            responseHeaders, false, SystemClock.elapsedRealtime() - requestStart);
-                    if (statusCode == HttpStatus.SC_UNAUTHORIZED ||
-                            statusCode == HttpStatus.SC_FORBIDDEN) {
-                        attemptRetryOnException("auth",
-                                request, new AuthFailureError(networkResponse));
-                    } else if (statusCode >= 400 && statusCode <= 499) {
-                        // Don't retry other client errors.
-                        throw new ClientError(networkResponse);
-                    } else if (statusCode >= 500 && statusCode <= 599) {
-                        if (request.shouldRetryServerErrors()) {
-                            attemptRetryOnException("server",
-                                    request, new ServerError(networkResponse));
-                        } else {
-                            throw new ServerError(networkResponse);
-                        }
-                    } else {
-                        // 3xx? No reason to retry.
-                        throw new ServerError(networkResponse);
-                    }
-                } else {
-                    attemptRetryOnException("network", request, new NetworkError());
-                }
+            } catch (Exception e) {
+                //省略异常处理
             }
         }
     }
